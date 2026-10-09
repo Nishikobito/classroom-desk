@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+    <title>Classroom Desk</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#ffffff">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/favicon.png">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="stylesheet" href="style.css">
+  <style id="user-css"></style>
+</head>
+<body class="web">
+  <header id="tabbar">
+    <button id="nav-back" class="icon-btn" title="戻る (Alt+←)" disabled></button>
+    <button id="nav-fwd" class="icon-btn" title="進む (Alt+→)" disabled></button>
+    <nav id="tabs"></nav>
+    <button id="btn-sync" class="icon-btn" title="今すぐ同期 (Alt+R)"></button>
+  </header>
+
+  <div id="body">
+    <aside id="sidebar" aria-label="クラス一覧"></aside>
+    <main id="views"></main>
+  </div>
+
+  <aside id="settings" class="hidden" aria-label="設定">
+    <div class="drawer-head">
+      <h2>設定</h2>
+      <button id="settings-close" class="icon-btn" title="閉じる">×</button>
+    </div>
+
+    <section>
+      <h3>デザイン</h3>
+      <label class="field">テーマ
+        <select data-ui="theme">
+          <option value="system">システムに合わせる</option>
+          <option value="light">ライト</option>
+          <option value="dark">ダーク</option>
+        </select>
+      </label>
+      <label class="field">アクセント色 <input type="color" data-ui="accent"></label>
+      <h4 class="sub">文字の大きさ</h4>
+      <label class="field">全体をまとめて拡大 <span class="rng"><input type="range" min="80" max="160" step="5" data-ui="fontScale"><span class="val" data-val="fontScale" data-unit="%"></span></span></label>
+      <label class="field">基本 <span class="rng"><input type="range" min="11" max="22" step="1" data-ui="fontSize"><span class="val" data-val="fontSize"></span></span></label>
+      <label class="field">タブ <span class="rng"><input type="range" min="11" max="20" step="1" data-ui="fsTab"><span class="val" data-val="fsTab"></span></span></label>
+      <label class="field">左のメニュー <span class="rng"><input type="range" min="11" max="20" step="1" data-ui="fsSide"><span class="val" data-val="fsSide"></span></span></label>
+      <label class="field">クラスカードのタイトル <span class="rng"><input type="range" min="14" max="32" step="1" data-ui="fsCardTitle"><span class="val" data-val="fsCardTitle"></span></span></label>
+      <label class="field">クラスカードの本文 <span class="rng"><input type="range" min="10" max="20" step="1" data-ui="fsCardBody"><span class="val" data-val="fsCardBody"></span></span></label>
+      <label class="field">課題・通知の一覧 <span class="rng"><input type="range" min="11" max="22" step="1" data-ui="fsList"><span class="val" data-val="fsList"></span></span></label>
+      <label class="field">お知らせ・詳細の本文 <span class="rng"><input type="range" min="11" max="24" step="1" data-ui="fsBody"><span class="val" data-val="fsBody"></span></span></label>
+      <button id="btn-font-reset" class="btn">文字の大きさを初期値に戻す</button>
+      <h4 class="sub">クラス</h4>
+      <button id="btn-class-reset" class="btn">並び順・非表示・バナー/アイコンを初期化</button>
+      <label class="field">角の丸み <input type="range" min="0" max="20" step="1" data-ui="radius"></label>
+      <label class="field">行の余白
+        <select data-ui="density">
+          <option value="compact">せまい</option>
+          <option value="normal">ふつう</option>
+          <option value="comfortable">ひろい</option>
+        </select>
+      </label>
+      <label class="field">方眼紙の背景 <input type="checkbox" data-ui="grid"></label>
+      <label class="field">左メニューの影
+        <select data-ui="shadowSide"><option value="none">なし</option><option value="soft">弱</option><option value="medium">中</option><option value="strong">強</option></select>
+      </label>
+      <label class="field">クラスカード下のボタンを表示 <input type="checkbox" data-ui="cardButtons"></label>
+      <label class="field">左メニューの幅 <span class="rng"><input type="range" min="200" max="460" step="10" data-ui="sidebarWidth"><span class="val" data-val="sidebarWidth"></span></span></label>
+      <label class="field">左メニューの項目の大きさ <span class="rng"><input type="range" min="36" max="64" step="2" data-ui="sidebarItem"><span class="val" data-val="sidebarItem"></span></span></label>
+      <label class="field">カード・一覧の影
+        <select data-ui="shadowCard"><option value="none">なし</option><option value="soft">弱</option><option value="medium">中</option><option value="strong">強</option></select>
+      </label>
+      <label class="stack">カスタムCSS(上書きしたい見た目をそのまま書けます)
+        <textarea data-ui="css" rows="7" spellcheck="false" placeholder=":root { --hl-soon: #bde0fe; }&#10;.card { border-radius: 0; }"></textarea>
+      </label>
+    </section>
+
+    <section>
+      <h3>同期と通知</h3>
+      <label class="field">確認する間隔(分) <input type="number" min="2" max="120" data-set="pollMinutes" class="narrow"></label>
+      <label class="field electron-only">ログイン時にアプリを起動 <input type="checkbox" data-set="openAtLogin"></label>
+      <p class="hint electron-only">Dockの赤い数字は、通知タブの未読数と同じです。</p>
+      <p class="hint web-only">インストールしたアプリのアイコンの数字と、ブラウザのタブの題名の数字が、未読の通知数です。通知の確認は、アプリを開いている間に行います。</p>
+      <div class="field web-only"><span>デスクトップ通知</span><button id="btn-notif-perm" class="btn">許可する</button></div>
+    </section>
+
+    <section>
+      <h3>通知の工夫</h3>
+      <div class="field"><span>ミュートするクラス <b id="mute-count" class="muted"></b></span><button id="btn-mute" class="btn">選ぶ…</button></div>
+      <label class="stack">強調するキーワード(読点「、」で区切る)
+        <input type="text" id="kw-input" class="input" placeholder="テスト、提出、締切">
+      </label>
+      <p class="hint">キーワードを含むお知らせ・課題は、★をつけて強調します。ミュート中のクラスでも通知します。</p>
+      <label class="field">提出忘れアラート <input type="checkbox" data-set="reminderEnabled"></label>
+      <label class="field">アラートを出す時間
+        <select data-set="reminderHours" data-num>
+          <option value="1">期限の1時間前</option><option value="3">3時間前</option><option value="6">6時間前</option><option value="12">12時間前</option><option value="24">1日前</option>
+        </select>
+      </label>
+      <label class="field">朝のまとめ通知 <input type="checkbox" data-set="digestEnabled"></label>
+      <label class="field">まとめの時刻 <input type="time" data-set="digestTime"></label>
+      <p class="hint">朝のまとめは、設定した時刻にアプリが動いているときに、1日1回だけ出ます。</p>
+    </section>
+
+    <section>
+      <h3 class="electron-only">Appleカレンダー</h3>
+      <h3 class="web-only">Googleカレンダー</h3>
+      <label class="field">提出期限を自動で登録 <input type="checkbox" data-set="calendarEnabled"></label>
+      <label class="field electron-only">カレンダー名 <input type="text" data-set="calendarName" class="mid"></label>
+      <label class="field">事前の通知
+        <select data-set="alarmMinutes" data-num>
+          <option value="0">なし</option>
+          <option value="60">1時間前</option>
+          <option value="180">3時間前</option>
+          <option value="1440">1日前</option>
+          <option value="2880">2日前</option>
+        </select>
+      </label>
+      <label class="field">提出したら予定を削除 <input type="checkbox" data-set="deleteOnSubmit"></label>
+      <button id="btn-cal-sync" class="btn">カレンダーに今すぐ反映</button>
+    </section>
+
+    <section>
+      <h3>バックアップと引っ越し</h3>
+      <p class="hint">メモ・見た目・クラスの並び・課題の進み具合・通知の設定を、1つのファイルに書き出します。別のパソコンやChromebookに移すときや、念のための保存に使えます(ログイン情報は含まれません)。</p>
+      <button id="btn-backup-export" class="btn">書き出す</button>
+      <button id="btn-backup-import" class="btn">読み込む…</button>
+      <span id="backup-status" class="hint"></span>
+    </section>
+
+    <section>
+      <h3>アカウント</h3>
+      <p id="last-sync" class="hint"></p>
+      <button id="btn-signout" class="btn">サインアウト</button>
+      <button id="btn-reset-client" class="btn web-only">クライアントIDを入力し直す</button>
+    </section>
+
+    <section class="web-only">
+      <h3>アプリの更新</h3>
+      <p id="app-version" class="hint"></p>
+      <button id="btn-update-check" class="btn">更新を確認</button>
+      <span id="update-status" class="hint"></span>
+    </section>
+  </aside>
+
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <script src="config.js"></script>
+  <script src="classroom-core.js"></script>
+  <script src="logic.js"></script>
+  <script src="backend.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
